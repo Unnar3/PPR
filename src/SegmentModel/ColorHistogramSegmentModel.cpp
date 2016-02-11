@@ -1,4 +1,4 @@
-#include "ColorHistogramSegmentModel.h"
+#include <SegmentModel/ColorHistogramSegmentModel.h>
 namespace ppr {
 ColorHistogramSegmentModel::ColorHistogramSegmentModel(	int * color_bin_index_, float * hist_diff_){
 	color_bin_index = color_bin_index_;

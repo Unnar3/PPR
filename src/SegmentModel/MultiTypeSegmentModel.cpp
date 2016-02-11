@@ -1,4 +1,4 @@
-#include "MultiTypeSegmentModel.h"
+#include <SegmentModel/MultiTypeSegmentModel.h>
 
 namespace ppr {
 MultiTypeSegmentModel::MultiTypeSegmentModel(){}

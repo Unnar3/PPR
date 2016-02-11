@@ -1,6 +1,6 @@
 #ifndef ppr_ColorHistogramSegmentModel_H_
 #define ppr_ColorHistogramSegmentModel_H_
-#include "SegmentModel.h"
+#include <SegmentModel/SegmentModel.h>
 namespace ppr {
 class ColorHistogramSegmentModel : public SegmentModel
 {

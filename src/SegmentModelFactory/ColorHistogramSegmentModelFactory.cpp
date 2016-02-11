@@ -1,4 +1,4 @@
-#include "ColorHistogramSegmentModelFactory.h"
+#include <SegmentModelFactory/ColorHistogramSegmentModelFactory.h>
 //#include "mygeometry/mygeometry.h"
 #include <sys/time.h>
 //#include <pcl/visualization/pcl_plotter.h>
@@ -80,7 +80,7 @@ ColorHistogramSegmentModelFactory::ColorHistogramSegmentModelFactory(){
 			}
 		}
 	}
-	
+
 	cvReleaseImage( &rgb_img );
 	cvReleaseImage( &hsv_img );
 	color_hist_weight = new float[color_res];
@@ -100,7 +100,7 @@ vector<SegmentModel*> * ColorHistogramSegmentModelFactory::getModels(	vector<int
 	}
 
 	unsigned int w_size = w.size();
-	
+
 	for(unsigned int k = 0; k < w_size; k++){
 		int i = w.at(k);
 		int j = h.at(k);
@@ -108,7 +108,7 @@ vector<SegmentModel*> * ColorHistogramSegmentModelFactory::getModels(	vector<int
 		float r_k = r[i][j];
 		float g_k = g[i][j];
 		float b_k = b[i][j];
-		
+
 		int color_index = color_bin_index[255*255*int(r_k)+255*int(g_k)+int(b_k)];
 
 		color_hist_weight[color_index]+=base->getModelFit(d.at(k),x[i][j],y[i][j],z[i][j],r_k,g_k,b_k,nx[i][j],ny[i][j],nz[i][j]);

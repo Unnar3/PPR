@@ -1,5 +1,5 @@
-#include "SurfaceRefinement.h"
-#include "../util/util.h"
+#include <Refinement/SurfaceRefinement.h>
+#include <util/util.h>
 namespace ppr {
 
 using namespace std;
@@ -20,22 +20,22 @@ void SurfaceRefinement::trackershow(){
 		cloud = inlier_clouds.at(showNr-1);
 		printf("Inliers\n");
 	}
-	
+
 	if(showtype == 1){
 		cloud = prob_clouds.at(showNr-1);
 		printf("prob\n");
 	}
-	
+
 	if(showtype == 2){
 		cloud = colprob_clouds.at(showNr-1);
 		printf("colprob\n");
 	}
-	
+
 	if(showtype == 3){
 		cloud = geoprob_clouds.at(showNr-1);
 		printf("geoprob\n");
 	}
-	
+
 	viewer->removePointCloud("cloud");
 	pcl::visualization::PointCloudColorHandlerRGBField<pcl::PointXYZRGB> rgb(cloud);
 	viewer->addPointCloud<pcl::PointXYZRGB> (cloud, rgb, "cloud");
@@ -83,10 +83,10 @@ SurfaceRefinement::SurfaceRefinement(){
 	visualize = true;
 	rescale = false;
 	weighted_estimation = true;
-	
+
 	use_normals = false;
 	use_colors = true;
-		
+
 	type = EUCLIDEAN;
 
 	//Main loop
@@ -156,21 +156,21 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 	nx = new float*[width];
 	ny = new float*[width];
 	nz = new float*[width];
-	
+
 	distance = new float*[width];
 	probability = new float*[width];
-	
+
 	bool ** mask = new bool*[width];
-	
+
 	for(int w = 0; w < width; w++){
 		r[w] = new float[height];
 		g[w] = new float[height];
 		b[w] = new float[height];
-		
+
 		x[w] = new float[height];
 		y[w] = new float[height];
 		z[w] = new float[height];
-		
+
 		nx[w] = new float[height];
 		ny[w] = new float[height];
 		nz[w] = new float[height];
@@ -180,15 +180,15 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 
 		mask[w] = new bool[height];
 	}
-	
+
 	for(int w = 0; w < width; w++){
 		for(int h = 0; h < height; h++){
 			PointXYZRGBNormal & p = cloud->points.at(h*width+w);
 			r[w][h] = p.r;
 			g[w][h] = p.g;
 			b[w][h] = p.b;
-			
-			if(!isnan(p.x)){ 
+
+			if(!isnan(p.x)){
 				x[w][h] = p.x;
 				y[w][h] = p.y;
 				z[w][h] = p.z;
@@ -197,18 +197,18 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 				y[w][h] = 0;
 				z[w][h] = 0;
 			}
-			
+
 			nx[w][h]	= p.normal_x;
 			ny[w][h]	= p.normal_y;
 			nz[w][h]	= p.normal_z;
-			
+
 			mask[w][h]	= true;
-			
+
 			distance[w][h]		= 0;
 			probability[w][h]	= 0;
 		}
 	}
-	
+
 	if(debugg){
 		printf("max_distance: %f\n",max_distance);
 		printf("-----------------------------------------------------\n");
@@ -228,10 +228,10 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 	double total_inference_time = 0;
 	double total_update_time	= 0;
 	double start_loop = getCurrentTime();
-	
+
 	showNr = 0;
 	inlier_clouds.clear();
-	
+
 	for(int it = 0; it < iterations; it++){
 		modelFactory->setIterationNr(it);
 		max_distance = modelFactory->getMaxDistance();
@@ -242,18 +242,18 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 			modelFactory->setVisualize(false);
 			modelFactory->setDebugg(false);
 		}
-	
+
 		vector<int>  v_w;
 		vector<int>  v_h;
 		vector<float> v_d;
-		
+
 
 		//Extract distances for all points to the plane.
 		double start_distance_time = getCurrentTime();
 		for(int w = 0; w < width; w++){
 			for(int h = 0; h < height; h++){
 				probability[w][h] = 0;
-				if(z[w][h]!=0){	
+				if(z[w][h]!=0){
 					float d = surface->distance(x[w][h],y[w][h],z[w][h]);
 					distance[w][h] = d;
 					if(fabs(d) < max_distance /*&& (it > iterations/2 || inliers[w][h])*/ ){
@@ -265,46 +265,46 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 			}
 		}
 //printf("v_d.size() = %i\n",v_d.size());
-		
+
 		total_distance_time += getCurrentTime()-start_distance_time;
-		
+
 		//Train models and calculate probability for possible inliers
 		double start_train_time = getCurrentTime();
 		vector<SegmentModel*> * models = modelFactory->getModels(v_w, v_h, v_d, x, y, z, r, g, b,nx,ny,nz, 0); //Learn models
 		if(models->size() == 0){
-			
+
 			printf("no models found \n");
 			for(int w = 0; w < width; w++){
 				delete[] distance[w];
 				delete[] probability[w];
-		
+
 				delete[] mask[w];
-	
+
 				delete[] r[w];
 				delete[] g[w];
 				delete[] b[w];
-		
+
 				delete[] x[w];
 				delete[] y[w];
 				delete[] z[w];
-		
+
 				delete[] nx[w];
 				delete[] ny[w];
 				delete[] nz[w];
 			}
 			delete[] mask;
-	
+
 			delete[] distance;
 			delete[] probability;
-	
+
 			delete[] r;
 			delete[] g;
 			delete[] b;
-		
+
 			delete[] x;
 			delete[] y;
 			delete[] z;
-		
+
 			delete[] nx;
 			delete[] ny;
 			modelFactory->setMaxDistance(modelFactory->getMaxDistance()+0.05);
@@ -319,7 +319,7 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 			protest.push_back(probability[w][h]);
 		}
 		total_train_time += getCurrentTime()-start_train_time;
-		
+
 		//Infer inliers from probability function of inliers and inference algorithm
 		double start_inference_time = getCurrentTime();
 		int expectedInliers = modelFactory->getExpectedInliers();// from integral over foreground distribution
@@ -354,8 +354,8 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 				pweight.push_back(1.0f);
 			}
 		}
-		
-		
+
+
 		if(it >= iterations-1){//Update iniliers at last iteration
 			for(int w = 0; w < width; w++){
 				for(int h = 0; h < height; h++){
@@ -363,12 +363,12 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 				}
 			}
 		}
-		
+
 	if(false && debugg && it == iterations-1){
 		model->print();
 		MultiTypeSegmentModel * multitypesegmentmodel = (MultiTypeSegmentModel *)model;
-		
-	
+
+
 		float ** geoprob = new float*[width];
 		float ** colprob = new float*[width];
 		float ** jointprob = new float*[width];
@@ -380,9 +380,9 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 				geoprob[w][h] = 0;
 				colprob[w][h] = 0;
 				jointprob[w][h] = 0;
-				
 
-				
+
+
 				float d = surface->distance(x[w][h],y[w][h],z[w][h]);
 				vector<float> vec = model->getAllFits(d,x[w][h], y[w][h], z[w][h],r[w][h], g[w][h], b[w][h],nx[w][h], ny[w][h], nz[w][h]);
 				geoprob[w][h] = vec.at(0);
@@ -390,7 +390,7 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 				jointprob[w][h] = geoprob[w][h]*colprob[w][h];
 			}
 		}
-		
+
 		IplImage * geoprob_img		= cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
 		IplImage * colprob_img		= cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
 		IplImage * jointprob_img	= cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
@@ -409,16 +409,16 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 				cvRectangle(jointprob_img,cvPoint(w, h),cvPoint(w, h),	cvScalar(255.0*jointp*rv,	255.0*jointp*gv,	255.0*jointp*bv, 0), 1 , 8, 0);
 			}
 		}
-		
+
 		cvShowImage("geoprob_img", geoprob_img);
 		cvShowImage("colprob_img", colprob_img);
 		cvShowImage("jointprob_img", jointprob_img);
-		
+
 		char buf[1024];
-		
+
 		sprintf(buf,"geoprob_img%i.png",improve_count);
 		cvSaveImage(buf,geoprob_img);
-			
+
 		sprintf(buf,"colprob_img%i.png",improve_count);
 		cvSaveImage(buf,colprob_img);
 
@@ -426,7 +426,7 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 		cvSaveImage(buf,jointprob_img);
 
 		//cvWaitKey(0);
-		
+
 		IplImage * prob_img = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
 		IplImage * mask_img = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
 		for(int w = 0; w < width; w++){
@@ -438,24 +438,24 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 				if(z[w][h] == 0){cvRectangle(mask_img,cvPoint(w, h),cvPoint(w, h),cvScalar(0,255,0, 0), 1 , 8, 0);}
 			}
 		}
-			
+
 		cvShowImage("prob_img", prob_img);
 		cvShowImage("mask_img", mask_img);
 		cvWaitKey(100);
-			
+
 
 
 		sprintf(buf,"prob_img%i.png",improve_count);
 		cvSaveImage(buf,prob_img);
-			
+
 		sprintf(buf,"mask_img%i.png",improve_count);
 		cvSaveImage(buf,mask_img);
-			
+
 		cvReleaseImage( &prob_img );
 		cvReleaseImage( &mask_img );
 	}
-		
-		
+
+
 	if(save){//debugg && it % 10 == 0){// && it == iterations-1){
 		surface->print();
 		printf("improve_count: %i iteration: %i allow all:%i\n",improve_count,it,it > iterations/2);
@@ -463,33 +463,33 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 		inlier_cloud->width = width;
 		inlier_cloud->height = height;
 		inlier_cloud->points.resize(width*height);
-			
+
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr prob_cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
 		prob_cloud->width = width;
 		prob_cloud->height = height;
 		prob_cloud->points.resize(width*height);
-			
+
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr colprob_cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
 		colprob_cloud->width = width;
 		colprob_cloud->height = height;
 		colprob_cloud->points.resize(width*height);
-			
+
 		pcl::PointCloud<pcl::PointXYZRGB>::Ptr geoprob_cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
 		geoprob_cloud->width = width;
 		geoprob_cloud->height = height;
 		geoprob_cloud->points.resize(width*height);
-			
+
 		for(int w = 0; w < width; w++){
 			for(int h = 0; h < height; h++){
 				int ind = h*width+w;
-					
+
 				float d = surface->distance(x[w][h],y[w][h],z[w][h]);
 				vector<float> vec = model->getAllFits(d,x[w][h], y[w][h], z[w][h],r[w][h], g[w][h], b[w][h],nx[w][h], ny[w][h], nz[w][h]);
 				float geoprob = vec.at(0);
 				//float colprob[w][h] = vec.at(1);
-				
+
 				float prob = probability[w][h];
-				
+
 				inlier_cloud->points[ind].x = x[w][h];
 				inlier_cloud->points[ind].y = y[w][h];
 				inlier_cloud->points[ind].z = z[w][h];
@@ -501,12 +501,12 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 					inlier_cloud->points.at(ind).g = 0;
 					inlier_cloud->points.at(ind).b = 255;
 				}
-				
-				geoprob_cloud->points[ind] = inlier_cloud->points[ind];	
+
+				geoprob_cloud->points[ind] = inlier_cloud->points[ind];
 				geoprob_cloud->points[ind].r = 255.0*geoprob;
 				geoprob_cloud->points[ind].g = 255.0*geoprob;
 				geoprob_cloud->points[ind].b = 255.0*geoprob;
-				
+
 				prob_cloud->points[ind] = inlier_cloud->points[ind];
 				prob_cloud->points[ind].r = 255.0*(geoprob-prob);
 				prob_cloud->points[ind].g = 255.0*(geoprob-prob);
@@ -518,17 +518,17 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 					colprob_cloud->points[ind].r = 255.0*colprob;
 					colprob_cloud->points[ind].g = 255.0*colprob;
 					colprob_cloud->points[ind].b = 255.0*colprob;
-				}	
+				}
 			}
 		}
-			
+
 		showNr++;
 
 		inlier_clouds.push_back(inlier_cloud);
 		prob_clouds.push_back(prob_cloud);
 		colprob_clouds.push_back(colprob_cloud);
 		geoprob_clouds.push_back(geoprob_cloud);
-		
+
 		debuggdata.push_back(new SurfaceRefinementDebugg());
 		debuggdata.back()->inliers	= inlier_cloud;
 		debuggdata.back()->probs	= prob_cloud;
@@ -548,23 +548,23 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 					if(z[w][h] == 0){cvRectangle(mask_img,cvPoint(w, h),cvPoint(w, h),cvScalar(0,255,0, 0), 1 , 8, 0);}
 				}
 			}
-			
+
 			//printf("HOW THE FUCK DID IT GET HERE?!\n");
 			//exit(0);
-			
+
 			cvShowImage("prob_img", prob_img);
 			cvShowImage("mask_img", mask_img);
 			cvWaitKey(0);
-			
+
 			char buf[1024];
 			sprintf(buf,"prob_img%i.png",improve_count);
 			cvSaveImage(buf,prob_img);
-			
+
 			sprintf(buf,"mask_img%i.png",improve_count);
 			cvSaveImage(buf,mask_img);
-			
+
 			//improve_count++;
-			
+
 			cvReleaseImage( &prob_img );
 			cvReleaseImage( &mask_img );
 
@@ -589,16 +589,16 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 			cvShowImage("prob_img", prob_img);
 			cvShowImage("mask_img", mask_img);
 			cvWaitKey(0);
-			
+
 			char buf[1024];
 			sprintf(buf,"prob_img%i.png",improve_count);
 			cvSaveImage(buf,prob_img);
-			
+
 			sprintf(buf,"mask_img%i.png",improve_count);
 			cvSaveImage(buf,mask_img);
-			
+
 			improve_count++;
-			
+
 			cvReleaseImage( &prob_img );
 			cvReleaseImage( &mask_img );
 
@@ -620,45 +620,45 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 		printf("total loop cost      = %f\n",total_distance_time+total_train_time+total_inference_time+total_update_time);
 		printf("---END LOOP---\n");
 	}
-	
+
 	if(debugg){printf("improve cost: %f\n",getCurrentTime()-start);}
 
 	//Clear mem
-	
+
 	for(int w = 0; w < width; w++){
 		delete[] distance[w];
 		delete[] probability[w];
-		
+
 		delete[] mask[w];
-	
+
 		delete[] r[w];
 		delete[] g[w];
 		delete[] b[w];
-		
+
 		delete[] x[w];
 		delete[] y[w];
 		delete[] z[w];
-		
+
 		delete[] nx[w];
 		delete[] ny[w];
 		delete[] nz[w];
 	}
 	delete[] mask;
-	
+
 	delete[] distance;
 	delete[] probability;
-	
+
 	delete[] r;
 	delete[] g;
 	delete[] b;
-		
+
 	delete[] x;
 	delete[] y;
 	delete[] z;
-		
+
 	delete[] nx;
 	delete[] ny;
-	
+
 	modelFactory->setMaxDistance(modelFactory->getMaxDistance()+0.05);
 	return cloud;
 }

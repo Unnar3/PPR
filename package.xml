@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>Probabilistic-Primitive-Refinement</name>
+  <name>ProbabilisticPrimitiveRefinement</name>
   <version>1.0.0</version>
   <description>The Probabilistic Primitive Refinement package</description>
 
@@ -9,12 +9,12 @@
   <license>GPLv2</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  
+
   <build_depend>pcl_ros</build_depend>
   <build_depend>image_geometry</build_depend>
   <run_depend>pcl_ros</run_depend>
   <run_depend>image_geometry</run_depend>
   <export>
   </export>
-  
+
 </package>

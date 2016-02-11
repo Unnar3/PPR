@@ -7,11 +7,11 @@
 #include <iostream>
 #include <vector>
 #include <Eigen/LU>
-#include <Eigen/Eigenvalues> 
+#include <Eigen/Eigenvalues>
 #include <Eigen/Eigen>
 #include <Eigen/SVD>
 #include <Eigen/Core>
-#include "Surface.h"
+#include <pprgeometry/Surface.h>
 namespace ppr {
 //Plane class, see surface superclass for comments
 class Plane : public Surface
@@ -29,16 +29,16 @@ class Plane : public Surface
 
 	Plane(std::vector<float> & px, std::vector<float> & py, std::vector<float> & pz, std::vector<float> & pweight);
 	Plane();
-	
+
 	~Plane();
 
 	void update(std::vector<float> & px, std::vector<float> & py, std::vector<float> & pz, std::vector<float> & pweight);
-	
+
 	float distance(float x, float y, float z);
 	double angle(Plane * p);//Angle between two planes
 	float angle(float nx, float ny, float nz);
 	float angle(float x, float y, float z, float nx, float ny, float nz);
-	
+
 	void print();
 	Surface * clone();
 	void transform(Eigen::Matrix4f t);

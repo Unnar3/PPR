@@ -1,6 +1,6 @@
 #ifndef ppr_GaussiansSegmentModel_H_
 #define ppr_GaussiansSegmentModel_H_
-#include "SegmentModel.h"
+#include <SegmentModel/SegmentModel.h>
 namespace ppr {
 class GaussiansSegmentModel : public SegmentModel
 {

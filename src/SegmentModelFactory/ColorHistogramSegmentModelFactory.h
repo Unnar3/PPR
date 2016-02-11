@@ -1,6 +1,6 @@
 #ifndef ppr_ColorHistogramSegmentModelFactory_H_
 #define ppr_ColorHistogramSegmentModelFactory_H_
-#include "SegmentModelFactory.h"
+#include <SegmentModelFactory/SegmentModelFactory.h>
 #include <vector>
 namespace ppr {
 

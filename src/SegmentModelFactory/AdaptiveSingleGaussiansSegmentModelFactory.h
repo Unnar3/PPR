@@ -1,6 +1,6 @@
 #ifndef ppr_AdaptiveSingleGaussiansSegmentModelFactory_H_
 #define ppr_AdaptiveSingleGaussiansSegmentModelFactory_H_
-#include "SegmentModelFactory.h"
+#include <SegmentModelFactory/SegmentModelFactory.h>
 #include <vector>
 
 //using namespace std;
@@ -23,7 +23,7 @@ class AdaptiveSingleGaussiansSegmentModelFactory : public SegmentModelFactory
 	double smoothing_kernel[10000];
 
 	float expectedInliers;
-	
+
 	float P_enforcement;
 
 	AdaptiveSingleGaussiansSegmentModelFactory();
@@ -38,7 +38,7 @@ class AdaptiveSingleGaussiansSegmentModelFactory : public SegmentModelFactory
 	std::pair <double,double> fitGaussian(std::vector<float> value, std::vector<float> index);
 	std::pair <double,double> fitGaussian(std::vector<float> value, std::vector<float> index, float mu);
 	double gausian_error(std::vector<float> value, std::vector<float> index, double sigma, double mu);
-	
+
 	float getExpectedInliers();
 	float getMaxDistance();
 	void setMaxDistance(float f);

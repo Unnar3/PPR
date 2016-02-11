@@ -1,4 +1,4 @@
-#include "AdaptiveSingleGaussiansSegmentModelFactory.h"
+#include <SegmentModelFactory/AdaptiveSingleGaussiansSegmentModelFactory.h>
 //#include "mygeometry/mygeometry.h"
 #include <stdlib.h>
 #include <sys/time.h>
@@ -16,7 +16,7 @@ AdaptiveSingleGaussiansSegmentModelFactory::AdaptiveSingleGaussiansSegmentModelF
 
 	smoothng_std = 0.001;
 	P_enforcement = 5;
-	
+
 	for(int i = 0; i < bins; i++)			{x_arr[i] = 2.0f*max_d*(float(i)+0.5f-0.5*float(bins))/float(bins-1);}
 	for(int i = 0; i < smoothing*2+1; i++)	{smoothing_kernel[i] = exp(-0.5*x_arr[i-smoothing+bins/2]*x_arr[i-smoothing+bins/2]/(smoothng_std*smoothng_std));}
 	//for(int i = 0; i < smoothing*2+1; i++)	{printf("%f\n",smoothing_kernel[i]);}
@@ -58,22 +58,22 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 				smoothing_kernel[i] = sm;
 			}
 		}
-		
+
 		//printf("max_d: %f\n",max_d);
-		
+
 		double * d_distr = new double[bins];
 		double * d_distr_smooth = new double[bins];
 
 		generate_d_distr(d_distr, w,h, d, z,  max_d);
 		smooth_signal(d_distr_smooth, d_distr, smoothing_kernel);
-		
+
 		double d_sum = 0;
 		double d_max = 0;
 		for(int i = 0; i < bins; i++)				{
 			d_sum += d_distr[i];
 			d_max = max(d_max,d_distr[i]);
 		}
-		
+
 		double smooth_d_sum = 0;
 		double smooth_d_max = 0;
 		for(int i = 0; i < bins; i++)				{
@@ -108,12 +108,12 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 
 		int left_vec_ind = max_vec_ind-1;
 		int left_ind = -1;
-		
+
 		double right_mu;
 		double right_std;
 		double left_mu;
 		double left_std;
-		
+
 		//Left side
 		if(max_ind!=0){
 			while(left_ind == -1 && left_vec_ind >= 0){
@@ -125,9 +125,9 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 					left_ind = -1;
 					left_vec_ind -= 1;
 				}
-				
+
 			}
-			
+
 			if(left_ind != -1){
 				vector<float> values_left;
 				values_left.resize(max_ind-left_ind+1);
@@ -162,7 +162,7 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 					right_vec_ind += 1;
 				}
 			}
-			if(right_ind != -1){		
+			if(right_ind != -1){
 				std::vector<float> values_right;
 				std::vector<float> x_right;
 
@@ -184,7 +184,7 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 		ret->push_back(new GaussiansSegmentModel(max_val, small_mu, small_std, max_d,bins, d_distr_smooth));
 
 		expectedInliers = max_val*sqrt(2.0*M_PI*small_std*small_std)/(x_arr[1]-x_arr[0]);
-		
+
 		max_d = small_std*6;
 
 		if(debugg){
@@ -192,12 +192,12 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 			double total = 0;
 			for(int i = 0; i < d.size(); i++){mean_whole += d.at(i);}
 			mean_whole /= float(d.size());
-			
+
 			float std_whole = 0;
 			for(int i = 0; i < d.size(); i++){std_whole += (d.at(i)-mean_whole)*(d.at(i)-mean_whole);}
 			std_whole /= float(d.size()-1);
 			std_whole = sqrt(std_whole);
-			
+
 			char fit_whole_buf[500000];
 			sprintf(fit_whole_buf,"fit_whole = [ ");
 			for(int i = 0; i < bins; i++){
@@ -206,8 +206,8 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 				sprintf(fit_whole_buf,"%s %f ",fit_whole_buf,e);
 			}
 			sprintf(fit_whole_buf,"%s]",fit_whole_buf);
-			
-			
+
+
 			//Calculate gaussian over monotonicly decreasing parts
 			std::vector<float> values_both;
 			std::vector<float> x_both;
@@ -219,7 +219,7 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 			std::pair <double,double> gaussian_both = fitGaussian(values_both, x_both, x_arr[max_ind]);
 			float both_std = gaussian_both.first;
 			float both_mu  = gaussian_both.second;
-			
+
 			char fit_both_buf[500000];
 			sprintf(fit_both_buf,"fit_both = [ ");
 			for(int i = 0; i < bins; i++){
@@ -228,9 +228,9 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 				sprintf(fit_both_buf,"%s %f ",fit_both_buf,e);
 			}
 			sprintf(fit_both_buf,"%s]",fit_both_buf);
-			
+
 			//Calculate gaussian for both sides and pick the best solution
-			
+
 			char fit_left_buf[500000];
 			sprintf(fit_left_buf,"fit_left = [ ");
 			for(int i = 0; i < bins; i++){
@@ -239,7 +239,7 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 				sprintf(fit_left_buf,"%s %f ",fit_left_buf,e);
 			}
 			sprintf(fit_left_buf,"%s]",fit_left_buf);
-			
+
 			char fit_right_buf[500000];
 			sprintf(fit_right_buf,"fit_right = [ ");
 			for(int i = 0; i < bins; i++){
@@ -248,7 +248,7 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 				sprintf(fit_right_buf,"%s %f ",fit_right_buf,e);
 			}
 			sprintf(fit_right_buf,"%s]",fit_right_buf);
-		
+
 			char x_arr_buf[500000];
 			char d_distr_buf[500000];
 			char d_distr_smooth_buf[500000];
@@ -278,15 +278,15 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 			char prob_fit_both_buf	[500000];
 			char prob_fit_right_buf	[500000];
 			char prob_fit_left_buf	[500000];
-			
+
 			sprintf(prob_fit_buf,			"prob_fit = [ ");
 			sprintf(prob_fit_whole_buf,		"prob_fit_whole = [ ");
 			sprintf(prob_fit_both_buf,		"prob_fit_both = [ ");
 			sprintf(prob_fit_right_buf,		"prob_fit_right = [ ");
 			sprintf(prob_fit_left_buf,		"prob_fit_left = [ ");
-			
+
 			for(int i = 0; i < bins; i++){
-			
+
 				double x = x_arr[i] - small_mu;
 				double G = max_val*exp(-0.5*x*x/(small_std*small_std));
 				double H = max(max_val*0.05,d_distr_smooth[i]);
@@ -296,17 +296,17 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 				G = max_val*exp(-0.5*x*x/(std_whole*std_whole));
 				H = max(max_val*0.005,d_distr_smooth[i]);
 				sprintf(prob_fit_whole_buf,"%s %f ",prob_fit_whole_buf,min(G/H,1.0));
-				
+
 				x = x_arr[i] - both_mu;
 				G = max_val*exp(-0.5*x*x/(both_std*both_std));
 				H = max(max_val*0.005,d_distr_smooth[i]);
 				sprintf(prob_fit_both_buf,"%s %f ",prob_fit_both_buf,min(G/H,1.0));
-				
+
 				x = x_arr[i] - left_mu;
 				G = max_val*exp(-0.5*x*x/(left_std*left_std));
 				H = max(max_val*0.005,d_distr_smooth[i]);
 				sprintf(prob_fit_left_buf,"%s %f ",prob_fit_left_buf,min(G/H,1.0));
-				
+
 				x = x_arr[i] - right_mu;
 				G = max_val*exp(-0.5*x*x/(right_std*right_std));
 				H = max(max_val*0.005,d_distr_smooth[i]);
@@ -333,13 +333,13 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 			matlabfile		+=string(fit_both_buf)+";";
 			matlabfile		+=string(fit_right_buf)+";";
 			matlabfile		+=string(fit_left_buf)+";";
-			
+
 			matlabfile		+=string(prob_fit_buf)+";";
 			matlabfile		+=string(prob_fit_whole_buf)+";";
 			matlabfile		+=string(prob_fit_both_buf)+";";
 			matlabfile		+=string(prob_fit_right_buf)+";";
 			matlabfile		+=string(prob_fit_left_buf)+";";
-			
+
 //b		+="\n";
 
 			string f1 = "";
@@ -399,8 +399,8 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 
 			//b		+="exit \"";
 			b+= matlabfile;
-			
-			
+
+
 			ofstream myfile;
 			sprintf(fnbuf,"matlabfile_f%.4i_i%.3i.m",frame_nr,iteration_nr);
 			myfile.open (fnbuf);
@@ -408,7 +408,7 @@ vector<SegmentModel*> * AdaptiveSingleGaussiansSegmentModelFactory::getModels(	v
 			myfile.close();
 			b		+="\"";
 			//printf("adaptive before system call\n");
-			
+
 			//printf("%s\n",b.c_str());
 			//system(b.c_str());
 			//system("/usr/local/MATLAB/R2014a/bin/matlab");
@@ -452,7 +452,7 @@ void AdaptiveSingleGaussiansSegmentModelFactory::generate_d_distr(double * d_dis
 
 	int v_d_size = v_d.size();
 	float mul = bins/(2*max_d);
-	
+
 	//omp_set_dynamic(0);
 	//#pragma omp parallel num_threads(7)
 	{
@@ -465,7 +465,7 @@ void AdaptiveSingleGaussiansSegmentModelFactory::generate_d_distr(double * d_dis
 			int ind = int((d+max_d)*mul);
 			tmp[ind]++;
 		}
-		
+
 		//#pragma omp critical
 		{
 			for(int i = 0; i < bins; i++){
@@ -487,7 +487,7 @@ void AdaptiveSingleGaussiansSegmentModelFactory::smooth_signal(double * d_distr_
 		for(int j = -smoothing; j <= smoothing; j++){
 			if((i+j)>=0 && (i+j)<bins){
 				int current_ind = j+smoothing;
-				
+
 				double mul = smoothing_kernel[current_ind];
 				normalizer += mul;
 				sum += d_distr[i+j]*mul;
@@ -552,6 +552,6 @@ double AdaptiveSingleGaussiansSegmentModelFactory::gausian_error(std::vector<flo
 		if(e < 0){e*=P_enforcement;}
 		error += e*e;
 	}
-	return error;	
+	return error;
 }
 }

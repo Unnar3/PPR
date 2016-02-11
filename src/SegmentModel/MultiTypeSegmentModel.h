@@ -1,6 +1,6 @@
 #ifndef ppr_MultiTypeSegmentModel_H_
 #define ppr_MultiTypeSegmentModel_H_
-#include "SegmentModel.h"
+#include <SegmentModel/SegmentModel.h>
 namespace ppr {
 class MultiTypeSegmentModel : public SegmentModel
 {

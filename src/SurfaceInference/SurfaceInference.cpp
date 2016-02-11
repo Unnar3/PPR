@@ -1,5 +1,5 @@
-#include "SurfaceInference.h"
-#include "pprgeometry/pprgeometry.h"
+#include <SurfaceInference/SurfaceInference.h>
+#include <pprgeometry/pprgeometry.h>
 namespace ppr {
 SurfaceInference::SurfaceInference(){threshold = 0.5;}
 SurfaceInference::SurfaceInference(float t){threshold = t;}

@@ -1,4 +1,4 @@
-#include "GaussiansSegmentModel.h"
+#include <SegmentModel/GaussiansSegmentModel.h>
 #include <math.h>
 
 namespace ppr {

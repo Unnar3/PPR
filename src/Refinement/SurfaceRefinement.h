@@ -21,11 +21,11 @@
 
 #include <pcl/console/parse.h>
 
-#include "../pprgeometry/pprgeometry.h"
-#include "../SegmentModel/SegmentModel.h"
-#include "../SegmentModelFactory/SegmentModelFactory.h"
-#include "../SegmentModelFactory/AdaptiveSingleGaussiansSegmentModelFactory.h"
-#include "../SurfaceInference/SurfaceInference.h"
+#include <pprgeometry/pprgeometry.h>
+#include <SegmentModel/SegmentModel.h>
+#include <SegmentModelFactory/SegmentModelFactory.h>
+#include <SegmentModelFactory/AdaptiveSingleGaussiansSegmentModelFactory.h>
+#include <SurfaceInference/SurfaceInference.h>
 
 namespace ppr {
 
@@ -46,9 +46,9 @@ class SurfaceRefinementDebugg{
 class SurfaceRefinement
 {
 	public:
-		
+
 		boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
-		
+
 		vector<SurfaceRefinementDebugg * > debuggdata;
 		bool save;
 		void saveDebugg(bool s);
@@ -56,11 +56,11 @@ class SurfaceRefinement
 
 		bool debugg;
 		bool visualize;
-		
+
 		bool rescale;
-		
+
 		int width,height;
-		
+
 		float ** r;
 		float ** g;
 		float ** b;
@@ -72,14 +72,14 @@ class SurfaceRefinement
 		float ** nx;
 		float ** ny;
 		float ** nz;
-	
+
 		float ** distance;
 		float ** probability;
-	
+
 		bool ** mask;
-		
+
 		bool weighted_estimation;
-		
+
 		bool use_normals;
 		bool use_colors;
 
@@ -89,15 +89,15 @@ class SurfaceRefinement
 		//Main loop
 		int iterations;
 		float max_distance;
-		
+
 		void startViewer();
 		void trackershow();
-		
+
 		SegmentModelFactory * modelFactory;
 		SurfaceInference * inference;
-		
+
 		AdaptiveSingleGaussiansSegmentModelFactory * tmp1;
-		
+
 		SurfaceRefinement();
 		virtual ~SurfaceRefinement();
 		virtual PointCloud<PointXYZRGBNormal>::Ptr improve(bool ** inliers, PointCloud<PointXYZRGBNormal>::Ptr input_cloud, Surface * surface);
@@ -106,7 +106,7 @@ class SurfaceRefinement
 		virtual void setInference(SurfaceInference * si);
 		virtual void setType(distance_type t);
 		virtual void setMaxDistance(float f);
-		
+
 		//virtual void calcEdges(int width, int height, float ** edges_w, float ** edges_h,float ** z, float ** r, float ** g, float ** b);
 };
 

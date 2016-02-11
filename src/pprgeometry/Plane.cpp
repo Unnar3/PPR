@@ -1,10 +1,10 @@
-#include "Plane.h"
+#include <pprgeometry/Plane.h>
 #include <iostream>
 #include <vector>
 #include <algorithm>
 
 #include <Eigen/LU>
-#include <Eigen/Eigenvalues> 
+#include <Eigen/Eigenvalues>
 #include <Eigen/Eigen>
 #include <Eigen/SVD>
 #include <Eigen/Core>
@@ -25,7 +25,7 @@ void Plane::update(vector<float> & px, vector<float> & py, vector<float> & pz, v
 	float * y = new float[nr_points];
 	float * z = new float[nr_points];
 	float * weights = new float[nr_points];
-	
+
 	float tot_w = 0;
 	point_x =0;
 	point_y =0;
@@ -36,23 +36,23 @@ void Plane::update(vector<float> & px, vector<float> & py, vector<float> & pz, v
 		float tmp_y = py.at(i);
 		float tmp_z = pz.at(i);
 		float tmp_w = pweight.at(i);
-	
+
 		point_x+= tmp_w*tmp_x;
 		point_y+= tmp_w*tmp_y;
 		point_z+= tmp_w*tmp_z;
-		
+
 		x[i] = tmp_x;
 		y[i] = tmp_y;
 		z[i] = tmp_z;
 		weights[i] = tmp_w;
-		
+
 		tot_w += tmp_w;
 	}
 
 	point_x/=tot_w;
 	point_y/=tot_w;
 	point_z/=tot_w;
-	
+
 	for(unsigned int i = 0; i < nr_points; i++){
 		x[i] -= point_x;
 		y[i] -= point_y;
@@ -63,9 +63,9 @@ void Plane::update(vector<float> & px, vector<float> & py, vector<float> & pz, v
 	data.push_back(x);
 	data.push_back(y);
 	data.push_back(z);
-	
+
 	unsigned int dim = data.size();
-	
+
 	MatrixXf covMat(dim,dim);
 
 	for(unsigned int i = 0; i < dim; i++){
@@ -80,7 +80,7 @@ void Plane::update(vector<float> & px, vector<float> & py, vector<float> & pz, v
 			covMat(j,i)=covMat(i,j);
 		}
 	}
-	
+
 	JacobiSVD<MatrixXf> svd(covMat, ComputeThinU | ComputeThinV);
 
 	VectorXf S = svd.singularValues();
@@ -91,7 +91,7 @@ void Plane::update(vector<float> & px, vector<float> & py, vector<float> & pz, v
 
 	MatrixXf U = svd.matrixU();
 	U = -U;
-	
+
 	normal_x 			= U(0,2);
 	normal_y 			= U(1,2);
 	normal_z 			= U(2,2);
@@ -133,7 +133,7 @@ void Plane::normalize(){
 double Plane::angle(Plane * pl){
 	pl->normalize();
 	normalize();
-	
+
 	double dot = normal_x*pl->normal_x + normal_y*pl->normal_y+normal_z*pl->normal_z;
 	return dot;
 }

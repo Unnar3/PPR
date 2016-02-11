@@ -1,4 +1,4 @@
-#include "SegmentModelFactory.h"
+#include <SegmentModelFactory/SegmentModelFactory.h>
 //#include "mygeometry/mygeometry.h"
 //#include <opencv.hpp>
 namespace ppr {

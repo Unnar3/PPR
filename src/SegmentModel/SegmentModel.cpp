@@ -1,4 +1,4 @@
-#include "SegmentModel.h"
+#include <SegmentModel/SegmentModel.h>
 
 
 namespace ppr {

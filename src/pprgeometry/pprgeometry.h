@@ -1,7 +1,7 @@
 #ifndef ppr_geometry_H_
 #define ppr_geometry_H_
 
-#include "Surface.h"
-#include "Plane.h"
+#include <pprgeometry/Surface.h>
+#include <pprgeometry/Plane.h>
 
 #endif

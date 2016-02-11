@@ -1,4 +1,4 @@
-#include "RGBDSegmentModelFactory.h"
+#include <SegmentModelFactory/RGBDSegmentModelFactory.h>
 //#include "mygeometry/mygeometry.h"
 namespace ppr {
 RGBDSegmentModelFactory::RGBDSegmentModelFactory(){}
