@@ -53,8 +53,8 @@ target_link_libraries(ppr_SegmentModelFactory ppr_util ppr_SegmentModel opencv_c
 add_library(ProbabilisticPrimitiveRefinement src/Refinement/SurfaceRefinement.cpp src/Refinement/SurfaceRefinement.h)
 target_link_libraries(ProbabilisticPrimitiveRefinement ppr_geometry ppr_util ppr_SurfaceInference ppr_SegmentModelFactory opencv_calib3d opencv_gpu opencv_ts opencv_contrib opencv_highgui opencv_objdetect opencv_video opencv_core opencv_imgproc opencv_photo opencv_videostab opencv_features2d opencv_legacy opencv_stitching opencv_flann opencv_ml opencv_superres ${PCL_LIBRARIES})
 
-#add_executable(ppr_pcd_tester src/examples/pcd_tester.cpp)
-#target_link_libraries(ppr_pcd_tester ProbabilisticPrimitiveRefinement ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_executable(ppr_pcd_tester src/examples/pcd_tester.cpp)
+target_link_libraries(ppr_pcd_tester ProbabilisticPrimitiveRefinement ${OpenCV_LIBRARIES} ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 
 # Mark cpp header files for installation

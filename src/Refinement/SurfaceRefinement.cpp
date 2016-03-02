@@ -91,7 +91,7 @@ SurfaceRefinement::SurfaceRefinement(){
 
 	//Main loop
 	iterations = 30;
-	max_distance = 0.04;
+	max_distance = 0.1;
 
 	RGBDSegmentModelFactory * smf = new RGBDSegmentModelFactory();
 	tmp1 = new AdaptiveSingleGaussiansSegmentModelFactory(max_distance);
@@ -308,7 +308,8 @@ PointCloud<PointXYZRGBNormal>::Ptr SurfaceRefinement::improve(bool ** inliers, P
 			delete[] nx;
 			delete[] ny;
 			modelFactory->setMaxDistance(modelFactory->getMaxDistance()+0.05);
-			return cloud;
+            PointCloud<PointXYZRGBNormal>::Ptr tmp;
+			return tmp;
 		}
 		SegmentModel * model = models->at(0);
 
